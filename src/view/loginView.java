@@ -1,44 +1,49 @@
 package view;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Scanner;
-import controller.AuthController;
 
 public class loginView {
-    private Scanner scanner;
-        private AuthController authController;
 
-        public LoginView() {
-            scanner = new Scanner(System.in);
-            authController = new AuthController();
-        }
+    public static void main(String[] args) {
+        try {
+            // Connect to MySQL
+            Connection conn = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/employeeData", "root", "password");
 
-    public void showLogin() {
-        System.out.println("=== Welcome to Company Z Employee Management System ===");
+            AuthDAO authDAO = new AuthDAOImpl(conn);
+            AuthController authController = new AuthController(authDAO);
+            Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Username: ");
-        String username = scanner.nextLine();
+            System.out.println("=== Employee Management System Login ===");
+            System.out.print("Username: ");
+            String username = scanner.nextLine();
 
-        System.out.print("Password: ");
-        String password = scanner.nextLine();
+            System.out.print("Password: ");
+            String password = scanner.nextLine();
 
-        User loggedInUser = authController.login(username, password);
+            if (authController.login(username, password)) {
+                String role = authController.getRole(username);
+                if ("HR_ADMIN".equals(role)) {
+                    System.out.println("Welcome HR Admin!");
+                    // Launch Admin Dashboard here
+                } else if ("EMPLOYEE".equals(role)) {
+                    System.out.println("Welcome Employee!");
+                    // Launch Employee Dashboard here
+                } else {
+                    System.out.println("Unknown role!");
+                }
+            }
 
-        if (loggedInUser != null) {
-            System.out.println("Login successful! Welcome " + loggedInUser.getUsername());
-            redirectDashboard(loggedInUser);
-        } else {
-            System.out.println("Invalid username or password. Try again.");
-            showLogin(); // Retry login
-        }
-    }
+            scanner.close();
+            conn.close();
 
-    private void redirectDashboard(User user) {
-        if (user.getRole().equals("HR_ADMIN")) {
-            AdminDashboardView adminView = new AdminDashboardView(user);
-            adminView.showMenu();
-        } else if (user.getRole().equals("EMPLOYEE")) {
-            EmployeeDashboardView employeeView = new EmployeeDashboardView(user);
-            employeeView.showMenu();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }
+
+

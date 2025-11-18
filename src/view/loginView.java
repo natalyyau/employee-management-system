@@ -5,6 +5,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Scanner;
 
+import dao.AuthDAO;
+import controller.AuthController;
+
 public class loginView {
 
     public static void main(String[] args) {
@@ -13,7 +16,7 @@ public class loginView {
             Connection conn = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/employeeData", "root", "password");
 
-            AuthDAO authDAO = new AuthDAOImpl(conn);
+            AuthDAO authDAO = new AuthDAO(conn);
             AuthController authController = new AuthController(authDAO);
             Scanner scanner = new Scanner(System.in);
 

@@ -16,7 +16,7 @@ public class loginView {
         try {
             // Connect to MySQL
             Connection conn = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/employeeData", "root", "Nata200509");
+                "jdbc:mysql://localhost:3306/employeeData", "root", "password");
 
             AuthDAO authDAO = new AuthDAO(conn);
             authController authController = new authController(authDAO);

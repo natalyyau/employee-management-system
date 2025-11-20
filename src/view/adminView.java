@@ -52,6 +52,7 @@ public class adminView {
 
     // Helper method to print employees and allow editing
     private void printEmployeeTable(List<Map<String, Object>> employees, Scanner scanner) {
+        System.out.println("\n=== Employee Search Results ===");
         System.out.printf(
             "%-6s | %-10s | %-10s | %-25s | %-10s | %-12s | %-10s | %-11s\n",
             "EmpID", "Fname", "Lname", "Email", "Role", "HireDate", "Salary", "SSN"

@@ -19,10 +19,14 @@ public class adminView {
         while (running) {
             System.out.println("\n=== HR Admin Dashboard ===");
             System.out.println("1. Search Employee");
-            System.out.println("2. Exit");
+            System.out.println("2. Pay Report by Division");
+            System.out.println("3. Pay Report by Job Title");
+            System.out.println("4. Exit");
             System.out.print("Choose option: ");
+
             int option = scanner.nextInt();
             scanner.nextLine(); // consume newline
+            System.out.println();
 
             switch (option) {
                 case 1:
@@ -38,9 +42,22 @@ public class adminView {
                     break;
 
                 case 2:
+                    List<String> divReport = controller.getPayReportByDivision();
+                    for (String line : divReport) {
+                    System.out.println(line);
+                    }
+                    break;
+
+                case 3:
+                    List<String> jobReport = controller.getPayReportByJobTitle();
+                    for (String line : jobReport) {
+                    System.out.println(line);
+                    }
+                    break;
+
+                case 4:
                     running = false;
                     System.out.println("Exiting admin dashboard...");
-                    break;
 
                 default:
                     System.out.println("Invalid option.");

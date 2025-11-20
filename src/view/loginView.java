@@ -17,7 +17,7 @@ public class loginView {
         try {
             // Connect to MySQL
             Connection conn = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/employeeData", "root", "password");
+                "jdbc:mysql://localhost:3306/employeeData", "root", "YOUR_SQL_PASSWORD");
 
             AuthDAO authDAO = new AuthDAO(conn);
             authController authController = new authController(authDAO);
@@ -53,10 +53,11 @@ public class loginView {
                     if ("admin".equalsIgnoreCase(role)) {
                         System.out.println("Welcome HR Admin!");
                             // 1. Create DAO
-                        employeeDAO empDAO = new employeeDAO(conn);
+                            employeeDAO empDAO = new employeeDAO(conn);
+                            dao.reportsDAO reportsDAO = new dao.reportsDAO(conn);
 
                         // 2. Create Controller
-                        adminController adminController = new adminController(empDAO);
+                        adminController adminController = new adminController(empDAO, reportsDAO);
 
                         // 3. Create View
                         adminView adminView = new adminView(adminController);

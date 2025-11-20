@@ -8,4 +8,8 @@ public interface AuthInterface {
 
     // Returns the role of the user (HR_ADMIN or EMPLOYEE)
     String getUserRole(String email) throws SQLException;
+
+    // NEW: Get employee ID by email
+    int getEmpIdByEmail(String email) throws SQLException;
 }
+

@@ -31,4 +31,14 @@ public class authController {
             return null;
         }
     }
+
+    // NEW: get the employee ID for a given email
+    public int getEmpId(String email) {
+        try {
+            return authDAO.getEmpIdByEmail(email);
+        } catch (SQLException e) {
+            System.out.println("Error retrieving employee ID: " + e.getMessage());
+            return -1; // indicates failure
+        }
+    }
 }

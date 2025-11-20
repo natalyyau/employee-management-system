@@ -1,47 +1,55 @@
 package dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class AuthDAO implements AuthInterface {
 
     private Connection conn;
 
-    // Constructor receives a JDBC connection
     public AuthDAO(Connection conn) {
         this.conn = conn;
     }
 
     @Override
     public boolean validateUser(String email, String password) throws SQLException {
-        String sql = "SELECT password FROM employees WHERE email = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, email);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                String dbPassword = rs.getString("password");
-                return password.equals(dbPassword);
-            } else {
-                return false; // email not found
+        String sql = "SELECT COUNT(*) FROM employees WHERE email=? AND password=?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ps.setString(2, password);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
             }
         }
+        return false;
     }
 
     @Override
     public String getUserRole(String email) throws SQLException {
-        String sql = "SELECT role FROM employees WHERE email = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, email);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getString("role"); // Returns HR_ADMIN or EMPLOYEE
-            } else {
-                return null; // email not found
+        String sql = "SELECT role FROM employees WHERE email=?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("role");
+                }
             }
         }
+        return null;
+    }
+
+    @Override
+    public int getEmpIdByEmail(String email) throws SQLException {
+        String sql = "SELECT empid FROM employees WHERE email=?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("empid");
+                }
+            }
+        }
+        return -1; // not found
     }
 }

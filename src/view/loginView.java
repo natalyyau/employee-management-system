@@ -1,7 +1,10 @@
 package view;
 
+import controller.adminController;
 import controller.authController;
+import controller.employeeController;
 import dao.AuthDAO;
+import dao.employeeDAO;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -13,7 +16,7 @@ public class loginView {
         try {
             // Connect to MySQL
             Connection conn = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/employeeData", "root", "password");
+                "jdbc:mysql://localhost:3306/employeeData", "root", "Nata200509");
 
             AuthDAO authDAO = new AuthDAO(conn);
             authController authController = new authController(authDAO);
@@ -48,13 +51,33 @@ public class loginView {
 
                     if ("admin".equalsIgnoreCase(role)) {
                         System.out.println("Welcome HR Admin!");
-                        adminView adminView = new adminView();
-                        adminView.launch(); // Switch to admin dashboard
+                            // 1. Create DAO
+                        employeeDAO empDAO = new employeeDAO(conn);
+
+                        // 2. Create Controller
+                        adminController adminController = new adminController(empDAO);
+
+                        // 3. Create View
+                        adminView adminView = new adminView(adminController);
+
+                        // Launch Admin Dashboard
+                        adminView.launch();
 
                     } else if ("employee".equalsIgnoreCase(role)) {
-                        System.out.println("Welcome Employee!");
-                        employeeView employeeView = new employeeView();
-                        employeeView.launch(); // Switch to employee dashboard
+                                            // 1. Create DAO
+                        employeeDAO empDAO = new employeeDAO(conn);
+
+                        // 2. Create Controller
+                        employeeController empController = new employeeController(empDAO);
+
+                        // 3. Get empId of logged-in user
+                        int empId = authController.getEmpId(email); // You need a method in authController for this
+
+                        // 4. Create View with controller and empId
+                        employeeView empView = new employeeView(empController, empId);
+
+                        // Launch Employee Dashboard
+                        empView.launch();
 
                     } else {
                         System.out.println("Unknown role!");

@@ -1,6 +1,7 @@
 package controller;
 
 import dao.EmployeeInterface;
+import java.util.List;
 import java.util.Map;
 
 public class employeeController {
@@ -19,5 +20,14 @@ public class employeeController {
             return null;
         }
     }
-}
 
+    // Search for employees by ID, name, DOB, or SSN
+    public List<Map<String, Object>> searchEmployees(String query) {
+        try {
+            return employeeDAO.searchEmployees(query);
+        } catch (Exception e) {
+            System.out.println("Error searching employees: " + e.getMessage());
+            return null;
+        }
+    }
+}

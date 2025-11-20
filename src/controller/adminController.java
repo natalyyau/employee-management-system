@@ -28,5 +28,13 @@ public class adminController {
             return null;
         }
     }
+
+    public void updateEmployee(Map<String, Object> employeeData) {
+    try {
+        employeeDAO.updateEmployee(employeeData); // This updates the DB
+    } catch (Exception e) {
+        System.out.println("Error updating employee: " + e.getMessage());
+    }
+}
 }
 

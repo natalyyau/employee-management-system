@@ -1,17 +1,20 @@
 package controller;
 
 import dao.EmployeeInterface;
+import dao.PayrollInterface;
 import java.util.List;
 import java.util.Map;
 
 public class employeeController {
     private EmployeeInterface employeeDAO;
+    private PayrollInterface payrollDAO;
 
-    public employeeController(EmployeeInterface employeeDAO) {
+    public employeeController(EmployeeInterface employeeDAO, PayrollInterface payrollDAO) {
         this.employeeDAO = employeeDAO;
+        this.payrollDAO = payrollDAO;
     }
 
-    // Fetch employee data by empId
+    // Existing method
     public Map<String, Object> getEmployeeData(int empId) {
         try {
             return employeeDAO.getEmployeeById(empId);
@@ -21,12 +24,12 @@ public class employeeController {
         }
     }
 
-    // Search for employees by ID, name, DOB, or SSN
-    public List<Map<String, Object>> searchEmployees(String query) {
+    // NEW: Get payroll history
+    public List<Map<String, Object>> getPayrollHistory(int empId) {
         try {
-            return employeeDAO.searchEmployees(query);
+            return payrollDAO.getPayrollHistoryByEmpId(empId);
         } catch (Exception e) {
-            System.out.println("Error searching employees: " + e.getMessage());
+            System.out.println("Error fetching payroll: " + e.getMessage());
             return null;
         }
     }

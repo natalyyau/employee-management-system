@@ -5,6 +5,7 @@ import controller.authController;
 import controller.employeeController;
 import dao.AuthDAO;
 import dao.employeeDAO;
+import dao.payrollDAO;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -16,7 +17,7 @@ public class loginView {
         try {
             // Connect to MySQL
             Connection conn = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/employeeData", "root", "password");
+                "jdbc:mysql://localhost:3306/employeeData", "root", "Nata200509");
 
             AuthDAO authDAO = new AuthDAO(conn);
             authController authController = new authController(authDAO);
@@ -66,12 +67,14 @@ public class loginView {
                     } else if ("employee".equalsIgnoreCase(role)) {
                                             // 1. Create DAO
                         employeeDAO empDAO = new employeeDAO(conn);
+                        payrollDAO payrollDAO = new payrollDAO(conn);
+
 
                         // 2. Create Controller
-                        employeeController empController = new employeeController(empDAO);
+                        employeeController empController = new employeeController(empDAO, payrollDAO);
 
                         // 3. Get empId of logged-in user
-                        int empId = authController.getEmpId(email); // You need a method in authController for this
+                        int empId = authController.getEmpId(email); 
 
                         // 4. Create View with controller and empId
                         employeeView empView = new employeeView(empController, empId);

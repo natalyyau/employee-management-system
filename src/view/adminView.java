@@ -21,7 +21,8 @@ public class adminView {
             System.out.println("1. Search Employee");
             System.out.println("2. Pay Report by Division");
             System.out.println("3. Pay Report by Job Title");
-            System.out.println("4. Exit");
+            System.out.println("4. Employees Hired in Date Range");
+            System.out.println("5. Exit");
             System.out.print("Choose option: ");
 
             int option = scanner.nextInt();
@@ -56,8 +57,24 @@ public class adminView {
                     break;
 
                 case 4:
+                    System.out.print("Enter start date (YYYY-MM-DD): ");
+                    String startDate = scanner.nextLine();
+                    System.out.print("Enter end date (YYYY-MM-DD): ");
+                    String endDate = scanner.nextLine();
+                    
+                    List<Map<String, Object>> hiredEmployees = controller.getEmployeesHiredInRange(startDate, endDate);
+                    
+                    if (hiredEmployees == null || hiredEmployees.isEmpty()) {
+                        System.out.println("No employees found hired between " + startDate + " and " + endDate + ".");
+                    } else {
+                        printHiredEmployeesTable(hiredEmployees);
+                    }
+                    break;
+
+                case 5:
                     running = false;
                     System.out.println("Exiting admin dashboard...");
+                    break;
 
                 default:
                     System.out.println("Invalid option.");
@@ -162,5 +179,28 @@ public class adminView {
         } catch (Exception e) {
             System.out.println("Error updating employee: " + e.getMessage());
         }
+    }
+
+    // Helper method to print employees hired in date range
+    private void printHiredEmployeesTable(List<Map<String, Object>> employees) {
+        System.out.println("\n=== Employees Hired in Date Range ===");
+        System.out.printf(
+            "%-6s | %-15s | %-15s | %-12s | %-30s | %-20s\n",
+            "EmpID", "First Name", "Last Name", "Hire Date", "Job Title", "Division"
+        );
+        System.out.println("------------------------------------------------------------------------------------------------------------------------");
+
+        for (Map<String, Object> emp : employees) {
+            System.out.printf(
+                "%-6d | %-15s | %-15s | %-12s | %-30s | %-20s\n",
+                emp.get("empid"),
+                emp.get("Fname"),
+                emp.get("Lname"),
+                emp.get("HireDate"),
+                emp.get("job_title"),
+                emp.get("division_name")
+            );
+        }
+        System.out.println("\nTotal employees: " + employees.size());
     }
 }

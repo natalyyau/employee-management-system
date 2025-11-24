@@ -1,8 +1,11 @@
 package controller;
 
-import dao.EmployeeInterface;
+import java.sql.Date;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import dao.EmployeeInterface;
 
 public class adminController {
     private EmployeeInterface employeeDAO;
@@ -39,11 +42,24 @@ public class adminController {
         }
     }
 
-    public java.util.List<String> getPayReportByDivision() {
+    public List<String> getPayReportByDivision() {
         return reportsDAO.getPayReportByDivision();
     }
 
-    public java.util.List<String> getPayReportByJobTitle() {
+    public List<String> getPayReportByJobTitle() {
         return reportsDAO.getPayReportByJobTitle();
+    }
+
+    public List<Map<String, Object>> getEmployeesHiredInRange(String startDate, String endDate) {
+        try {
+            Date start = Date.valueOf(startDate);
+            Date end = Date.valueOf(endDate);
+            return reportsDAO.getEmployeesHiredInRange(start, end);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid date format. Please use YYYY-MM-DD.");
+        } catch (Exception e) {
+            System.out.println("Error fetching employees hired in range: " + e.getMessage());
+        }
+        return Collections.emptyList();
     }
 }

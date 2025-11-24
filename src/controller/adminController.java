@@ -62,4 +62,14 @@ public class adminController {
         }
         return Collections.emptyList();
     }
+
+    public int addEmployee(Map<String, Object> employeeData) {
+        try {
+            return employeeDAO.addEmployee(employeeData);
+        } catch (Exception e) {
+            System.out.println("Error adding employee: " + e.getMessage());
+            e.printStackTrace();
+            return -1;
+        }
+    }
 }

@@ -1,9 +1,11 @@
 package view;
 
-import controller.adminController;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+
+import controller.adminController;
 
 public class adminView {
     private adminController controller;
@@ -22,7 +24,8 @@ public class adminView {
             System.out.println("2. Pay Report by Division");
             System.out.println("3. Pay Report by Job Title");
             System.out.println("4. Employees Hired in Date Range");
-            System.out.println("5. Exit");
+            System.out.println("5. Add New Employee");
+            System.out.println("6. Exit");
             System.out.print("Choose option: ");
 
             int option = scanner.nextInt();
@@ -72,6 +75,10 @@ public class adminView {
                     break;
 
                 case 5:
+                    addNewEmployee(scanner);
+                    break;
+
+                case 6:
                     running = false;
                     System.out.println("Exiting admin dashboard...");
                     break;
@@ -202,5 +209,113 @@ public class adminView {
             );
         }
         System.out.println("\nTotal employees: " + employees.size());
+    }
+
+    // Method to add a new employee
+    private void addNewEmployee(Scanner scanner) {
+        System.out.println("\n=== Add New Employee ===");
+        Map<String, Object> employeeData = new HashMap<>();
+
+        // Required fields
+        System.out.print("First Name (required): ");
+        String fname = scanner.nextLine().trim();
+        if (fname.isEmpty()) {
+            System.out.println("Error: First Name is required.");
+            return;
+        }
+        employeeData.put("Fname", fname);
+
+        System.out.print("Last Name (required): ");
+        String lname = scanner.nextLine().trim();
+        if (lname.isEmpty()) {
+            System.out.println("Error: Last Name is required.");
+            return;
+        }
+        employeeData.put("Lname", lname);
+
+        System.out.print("Email (required): ");
+        String email = scanner.nextLine().trim();
+        if (email.isEmpty() || !email.contains("@")) {
+            System.out.println("Error: Valid email is required.");
+            return;
+        }
+        employeeData.put("email", email);
+
+        System.out.print("Salary (required): ");
+        String salaryInput = scanner.nextLine().trim();
+        double salary;
+        try {
+            salary = Double.parseDouble(salaryInput);
+            if (salary < 0) {
+                System.out.println("Error: Salary must be a positive number.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Error: Invalid salary format.");
+            return;
+        }
+        employeeData.put("Salary", salary);
+
+        // Optional fields
+        System.out.print("Hire Date (YYYY-MM-DD, optional - press Enter for today): ");
+        String hireDateInput = scanner.nextLine().trim();
+        if (!hireDateInput.isEmpty()) {
+            try {
+                java.sql.Date.valueOf(hireDateInput); // Validate format
+                employeeData.put("HireDate", hireDateInput);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Warning: Invalid date format. Using today's date.");
+            }
+        }
+
+        System.out.print("SSN (optional - press Enter to skip): ");
+        String ssn = scanner.nextLine().trim();
+        if (!ssn.isEmpty()) {
+            employeeData.put("SSN", ssn);
+        }
+
+        System.out.print("Role (admin/employee, optional - press Enter for 'employee'): ");
+        String role = scanner.nextLine().trim().toLowerCase();
+        if (!role.isEmpty() && (role.equals("admin") || role.equals("employee"))) {
+            employeeData.put("role", role);
+        } else if (!role.isEmpty()) {
+            System.out.println("Warning: Invalid role. Using default 'employee'.");
+        }
+
+        System.out.print("Default Password (optional - press Enter to use email as password): ");
+        String password = scanner.nextLine().trim();
+        if (!password.isEmpty()) {
+            employeeData.put("password", password);
+        }
+
+        // Confirm before adding
+        System.out.println("\n=== Employee Summary ===");
+        System.out.println("Name: " + fname + " " + lname);
+        System.out.println("Email: " + email);
+        System.out.println("Salary: $" + String.format("%.2f", salary));
+        System.out.println("Hire Date: " + (employeeData.get("HireDate") != null ? employeeData.get("HireDate") : "Today"));
+        System.out.println("SSN: " + (ssn.isEmpty() ? "Not provided" : ssn));
+        System.out.println("Role: " + (employeeData.get("role") != null ? employeeData.get("role") : "employee"));
+        System.out.println("Password: " + (password.isEmpty() ? "Email (default)" : "Custom"));
+
+        System.out.print("\nConfirm adding this employee? (yes/no): ");
+        String confirm = scanner.nextLine().trim().toLowerCase();
+        if (!confirm.equals("yes")) {
+            System.out.println("Employee addition cancelled.");
+            return;
+        }
+
+        // Add employee to database
+        int empId = controller.addEmployee(employeeData);
+        if (empId > 0) {
+            System.out.println("\n✓ Employee added successfully!");
+            System.out.println("Employee ID: " + empId);
+            System.out.println("Login credentials:");
+            System.out.println("  Email: " + email);
+            System.out.println("  Password: " + (password.isEmpty() ? email : password));
+            System.out.println("\nPlease inform the employee to change their password after first login.");
+        } else {
+            System.out.println("\n✗ Error: Failed to add employee. Please check the error messages above.");
+        }
     }
 }

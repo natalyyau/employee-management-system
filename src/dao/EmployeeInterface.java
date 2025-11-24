@@ -8,5 +8,7 @@ public interface EmployeeInterface {
     Map<String, Object> getEmployeeById(int empId) throws SQLException;
     List<Map<String, Object>> searchEmployees(String query) throws SQLException;
     void updateEmployee(Map<String, Object> employeeData) throws SQLException;
+    int addEmployee(Map<String, Object> employeeData) throws SQLException;
+    int getNextEmployeeId() throws SQLException;
 }
 

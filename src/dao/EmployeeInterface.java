@@ -10,5 +10,8 @@ public interface EmployeeInterface {
     void updateEmployee(Map<String, Object> employeeData) throws SQLException;
     int addEmployee(Map<String, Object> employeeData) throws SQLException;
     int getNextEmployeeId() throws SQLException;
+    //New method for salary update
+    void updateSalaryRange(double minSalary, double maxSalary, double percent) throws SQLException;
+
 }
 

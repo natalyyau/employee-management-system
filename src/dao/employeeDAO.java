@@ -153,4 +153,19 @@ public class employeeDAO implements EmployeeInterface {
         employee.put("HireDate", rs.getDate("HireDate"));
         return employee;
     }
+    //UpdateSalary- Nameera
+    @Override
+    public void updateSalaryRange(double minSalary, double maxSalary, double percent) throws SQLException {
+        String sql = "UPDATE employees SET Salary = Salary * (1 + ? / 100) WHERE Salary BETWEEN ? AND ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setDouble(1, percent);
+            ps.setDouble(2, minSalary);
+            ps.setDouble(3, maxSalary);
+
+            int updated = ps.executeUpdate();
+            System.out.println(updated + " employee salaries updated.");
+        }
+    }
+
 }

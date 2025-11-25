@@ -25,11 +25,12 @@ public class adminView {
             System.out.println("3. Pay Report by Job Title");
             System.out.println("4. Employees Hired in Date Range");
             System.out.println("5. Add New Employee");
-            System.out.println("6. Exit");
+            System.out.println("6. Update Salary by Percentage Range");
+            System.out.println("7. Exit");
             System.out.print("Choose option: ");
 
             int option = scanner.nextInt();
-            scanner.nextLine(); // consume newline
+            scanner.nextLine();
             System.out.println();
 
             switch (option) {
@@ -48,14 +49,14 @@ public class adminView {
                 case 2:
                     List<String> divReport = controller.getPayReportByDivision();
                     for (String line : divReport) {
-                    System.out.println(line);
+                        System.out.println(line);
                     }
                     break;
 
                 case 3:
                     List<String> jobReport = controller.getPayReportByJobTitle();
                     for (String line : jobReport) {
-                    System.out.println(line);
+                        System.out.println(line);
                     }
                     break;
 
@@ -64,9 +65,9 @@ public class adminView {
                     String startDate = scanner.nextLine();
                     System.out.print("Enter end date (YYYY-MM-DD): ");
                     String endDate = scanner.nextLine();
-                    
+
                     List<Map<String, Object>> hiredEmployees = controller.getEmployeesHiredInRange(startDate, endDate);
-                    
+
                     if (hiredEmployees == null || hiredEmployees.isEmpty()) {
                         System.out.println("No employees found hired between " + startDate + " and " + endDate + ".");
                     } else {
@@ -79,6 +80,10 @@ public class adminView {
                     break;
 
                 case 6:
+                    updateSalaryByRange(scanner);
+                    break;
+
+                case 7:
                     running = false;
                     System.out.println("Exiting admin dashboard...");
                     break;
@@ -91,7 +96,6 @@ public class adminView {
         scanner.close();
     }
 
-    // Helper method to print employees and allow editing
     private void printEmployeeTable(List<Map<String, Object>> employees, Scanner scanner) {
         System.out.println("\n=== Employee Search Results ===");
         System.out.printf(
@@ -114,7 +118,6 @@ public class adminView {
             );
         }
 
-        // Ask if admin wants to edit an employee
         System.out.print("\nDo you want to edit an employee? (yes/no): ");
         String choice = scanner.nextLine().trim().toLowerCase();
         if (choice.equals("yes")) {
@@ -130,7 +133,6 @@ public class adminView {
         }
     }
 
-    // Method to edit employee details selectively
     private void editEmployee(Map<String, Object> employee, Scanner scanner) {
         System.out.println("\nEditing Employee: " + employee.get("empid"));
         boolean editing = true;
@@ -171,7 +173,7 @@ public class adminView {
                     break;
 
                 case "5":
-                    editing = false; // exit loop
+                    editing = false;
                     break;
 
                 default:
@@ -179,7 +181,6 @@ public class adminView {
             }
         }
 
-        // Save changes to the database
         try {
             controller.updateEmployee(employee);
             System.out.println("Employee updated successfully!");
@@ -188,7 +189,6 @@ public class adminView {
         }
     }
 
-    // Helper method to print employees hired in date range
     private void printHiredEmployeesTable(List<Map<String, Object>> employees) {
         System.out.println("\n=== Employees Hired in Date Range ===");
         System.out.printf(
@@ -211,12 +211,10 @@ public class adminView {
         System.out.println("\nTotal employees: " + employees.size());
     }
 
-    // Method to add a new employee
     private void addNewEmployee(Scanner scanner) {
         System.out.println("\n=== Add New Employee ===");
         Map<String, Object> employeeData = new HashMap<>();
 
-        // Required fields
         System.out.print("First Name (required): ");
         String fname = scanner.nextLine().trim();
         if (fname.isEmpty()) {
@@ -256,12 +254,11 @@ public class adminView {
         }
         employeeData.put("Salary", salary);
 
-        // Optional fields
         System.out.print("Hire Date (YYYY-MM-DD, optional - press Enter for today): ");
         String hireDateInput = scanner.nextLine().trim();
         if (!hireDateInput.isEmpty()) {
             try {
-                java.sql.Date.valueOf(hireDateInput); // Validate format
+                java.sql.Date.valueOf(hireDateInput);
                 employeeData.put("HireDate", hireDateInput);
             } catch (IllegalArgumentException e) {
                 System.out.println("Warning: Invalid date format. Using today's date.");
@@ -288,7 +285,6 @@ public class adminView {
             employeeData.put("password", password);
         }
 
-        // Confirm before adding
         System.out.println("\n=== Employee Summary ===");
         System.out.println("Name: " + fname + " " + lname);
         System.out.println("Email: " + email);
@@ -305,17 +301,63 @@ public class adminView {
             return;
         }
 
-        // Add employee to database
         int empId = controller.addEmployee(employeeData);
         if (empId > 0) {
-            System.out.println("\n✓ Employee added successfully!");
+            System.out.println("\nEmployee added successfully!");
             System.out.println("Employee ID: " + empId);
             System.out.println("Login credentials:");
             System.out.println("  Email: " + email);
             System.out.println("  Password: " + (password.isEmpty() ? email : password));
             System.out.println("\nPlease inform the employee to change their password after first login.");
         } else {
-            System.out.println("\n✗ Error: Failed to add employee. Please check the error messages above.");
+            System.out.println("\nError: Failed to add employee.");
+        }
+    }
+
+    private void updateSalaryByRange(Scanner scanner) {
+        System.out.println("\n=== Update Salary by Percentage Range ===");
+
+        try {
+            System.out.print("Enter minimum salary: ");
+            double minSalary = Double.parseDouble(scanner.nextLine().trim());
+
+            System.out.print("Enter maximum salary: ");
+            double maxSalary = Double.parseDouble(scanner.nextLine().trim());
+
+            System.out.print("Enter percentage increase (example: 3.2): ");
+            double percent = Double.parseDouble(scanner.nextLine().trim());
+
+            if (minSalary < 0 || maxSalary < 0 || percent <= 0) {
+                System.out.println("Error: Values must be positive numbers.");
+                return;
+            }
+
+            if (minSalary > maxSalary) {
+                System.out.println("Error: Minimum salary cannot be greater than maximum salary.");
+                return;
+            }
+
+            System.out.println("\nYou entered:");
+            System.out.println("Min Salary: " + minSalary);
+            System.out.println("Max Salary: " + maxSalary);
+            System.out.println("Increase %: " + percent);
+
+            System.out.print("\nConfirm update? (yes/no): ");
+            String confirm = scanner.nextLine().trim().toLowerCase();
+
+            if (!confirm.equals("yes")) {
+                System.out.println("Salary update cancelled.");
+                return;
+            }
+
+            controller.updateSalaryRange(minSalary, maxSalary, percent);
+
+            System.out.println("\nSalary update completed.");
+
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid number format. Please try again.");
+        } catch (Exception e) {
+            System.out.println("Error updating salary: " + e.getMessage());
         }
     }
 }

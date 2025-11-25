@@ -72,4 +72,13 @@ public class adminController {
             return -1;
         }
     }
+    //Method to updatesalary- Nameera
+    public void updateSalaryRange(double minSalary, double maxSalary, double percent) {
+        try {
+            employeeDAO.updateSalaryRange(minSalary, maxSalary, percent);
+        } catch (Exception e) {
+            System.out.println("Error updating salary range: " + e.getMessage());
+        }
+    }
+
 }

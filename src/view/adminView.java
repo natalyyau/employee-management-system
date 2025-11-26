@@ -9,10 +9,12 @@ import controller.adminController;
 
 public class adminView {
     private adminController controller;
+    private int adminId;
 
-    public adminView(adminController controller) {
+    public adminView(adminController controller, int adminId) {
         this.controller = controller;
-    }
+        this.adminId = adminId;
+}
 
     public void launch() {
         Scanner scanner = new Scanner(System.in);
@@ -26,7 +28,8 @@ public class adminView {
             System.out.println("4. Employees Hired in Date Range");
             System.out.println("5. Add New Employee");
             System.out.println("6. Update Salary by Percentage Range");
-            System.out.println("7. Exit");
+            System.out.println("7. View My Profile");
+            System.out.println("8. Exit");
             System.out.print("Choose option: ");
 
             int option = scanner.nextInt();
@@ -62,18 +65,39 @@ public class adminView {
 
                 case 4:
                     System.out.print("Enter start date (YYYY-MM-DD): ");
-                    String startDate = scanner.nextLine();
+                    String startDate = scanner.nextLine().trim();
+                
                     System.out.print("Enter end date (YYYY-MM-DD): ");
-                    String endDate = scanner.nextLine();
-
+                    String endDate = scanner.nextLine().trim();
+                
+                    // Validate date format
+                    java.sql.Date start = null;
+                    java.sql.Date end = null;
+                
+                    try {
+                        start = java.sql.Date.valueOf(startDate);
+                        end = java.sql.Date.valueOf(endDate);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("ERROR: Invalid date format. Use YYYY-MM-DD.");
+                        break;
+                    }
+                
+                    // Validate range
+                    if (start.after(end)) {
+                        System.out.println("ERROR: Invalid date range. Start date cannot be after end date.");
+                        break;
+                    }
+                
+                    // Fetch from controller
                     List<Map<String, Object>> hiredEmployees = controller.getEmployeesHiredInRange(startDate, endDate);
-
+                
                     if (hiredEmployees == null || hiredEmployees.isEmpty()) {
                         System.out.println("No employees found hired between " + startDate + " and " + endDate + ".");
                     } else {
                         printHiredEmployeesTable(hiredEmployees);
                     }
                     break;
+                
 
                 case 5:
                     addNewEmployee(scanner);
@@ -84,9 +108,14 @@ public class adminView {
                     break;
 
                 case 7:
+                    viewMyProfile();
+                    break;
+                
+                case 8:
                     running = false;
                     System.out.println("Exiting admin dashboard...");
                     break;
+
 
                 default:
                     System.out.println("Invalid option.");
@@ -132,11 +161,12 @@ public class adminView {
             }
         }
     }
-
     private void editEmployee(Map<String, Object> employee, Scanner scanner) {
         System.out.println("\nEditing Employee: " + employee.get("empid"));
         boolean editing = true;
-
+    
+        Map<String, Object> updated = new HashMap<>(employee);
+    
         while (editing) {
             System.out.println("\nSelect field to edit:");
             System.out.println("1. Fname");
@@ -146,49 +176,94 @@ public class adminView {
             System.out.println("5. Done editing");
             System.out.print("Choose option: ");
             String choice = scanner.nextLine();
-
+    
             switch (choice) {
                 case "1":
-                    System.out.print("New Fname [" + employee.get("Fname") + "]: ");
-                    String fname = scanner.nextLine();
-                    if (!fname.isEmpty()) employee.put("Fname", fname);
+                    System.out.print("New Fname [" + updated.get("Fname") + "]: ");
+                    String fname = scanner.nextLine().trim();
+                    if (fname.isEmpty()) {
+                        System.out.println("ERROR: Blank field not allowed.");
+                    } else updated.put("Fname", fname);
                     break;
-
+    
                 case "2":
-                    System.out.print("New Lname [" + employee.get("Lname") + "]: ");
-                    String lname = scanner.nextLine();
-                    if (!lname.isEmpty()) employee.put("Lname", lname);
+                    System.out.print("New Lname [" + updated.get("Lname") + "]: ");
+                    String lname = scanner.nextLine().trim();
+                    if (lname.isEmpty()) {
+                        System.out.println("ERROR: Blank field not allowed.");
+                    } else updated.put("Lname", lname);
                     break;
-
+    
                 case "3":
-                    System.out.print("New Email [" + employee.get("email") + "]: ");
-                    String email = scanner.nextLine();
-                    if (!email.isEmpty()) employee.put("email", email);
+                    System.out.print("New Email [" + updated.get("email") + "]: ");
+                    String email = scanner.nextLine().trim();
+                    if (email.isEmpty()) {
+                        System.out.println("ERROR: Blank field not allowed.");
+                    } else updated.put("email", email);
                     break;
-
+    
                 case "4":
-                    System.out.print("New Salary [" + employee.get("Salary") + "]: ");
-                    String salaryInput = scanner.nextLine();
-                    if (!salaryInput.isEmpty()) employee.put("Salary", Double.parseDouble(salaryInput));
+                    System.out.print("New Salary [" + updated.get("Salary") + "]: ");
+                    String sal = scanner.nextLine().trim();
+                    if (sal.isEmpty()) {
+                        System.out.println("ERROR: Blank field not allowed.");
+                    } else {
+                        try {
+                            updated.put("Salary", Double.parseDouble(sal));
+                        } catch (NumberFormatException e) {
+                            System.out.println("ERROR: Invalid salary value.");
+                        }
+                    }
                     break;
-
+    
                 case "5":
                     editing = false;
                     break;
-
+    
                 default:
-                    System.out.println("Invalid option. Try again.");
+                    System.out.println("Invalid option.");
             }
         }
-
+    
+        // Final validation BEFORE UPDATE
+        if (updated.get("Fname").toString().isEmpty()
+            || updated.get("Lname").toString().isEmpty()
+            || updated.get("email").toString().isEmpty()
+            || updated.get("Salary") == null) 
+        {
+            System.out.println("\nERROR: One or more required fields are blank. Update cancelled.");
+            return;
+        }
+    
+        // Save changes
         try {
-            controller.updateEmployee(employee);
+            controller.updateEmployee(updated);
             System.out.println("Employee updated successfully!");
         } catch (Exception e) {
             System.out.println("Error updating employee: " + e.getMessage());
         }
-    }
+}
 
+    private void viewMyProfile() {
+        System.out.println("\n=== My Profile ===");
+    
+        Map<String, Object> me = controller.getEmployee(adminId);
+    
+        if (me == null) {
+            System.out.println("Error: Could not load your profile.");
+            return;
+        }
+    
+        System.out.println("Employee ID: " + me.get("empid"));
+        System.out.println("First Name: " + me.get("Fname"));
+        System.out.println("Last Name: " + me.get("Lname"));
+        System.out.println("Email: " + me.get("email"));
+        System.out.println("Role: " + me.get("role"));
+        System.out.println("Hire Date: " + me.get("HireDate"));
+        System.out.println("Salary: " + me.get("Salary"));
+        System.out.println("SSN: " + me.get("SSN"));
+    }
+    
     private void printHiredEmployeesTable(List<Map<String, Object>> employees) {
         System.out.println("\n=== Employees Hired in Date Range ===");
         System.out.printf(

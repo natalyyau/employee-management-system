@@ -58,9 +58,10 @@ public class loginView {
 
                         // 2. Create Controller
                         adminController adminController = new adminController(empDAO, reportsDAO);
-
-                        // 3. Create View
-                        adminView adminView = new adminView(adminController);
+                        //3. Get AdminID
+                        int adminId = authController.getEmpId(email);
+                        //4. Pass to Admin View
+                        adminView adminView = new adminView(adminController, adminId);
 
                         // Launch Admin Dashboard
                         adminView.launch();

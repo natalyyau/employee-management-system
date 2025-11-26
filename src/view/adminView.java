@@ -11,10 +11,10 @@ public class adminView {
     private adminController controller;
     private int adminId;
 
-    public adminView(adminController controller) {
+    public adminView(adminController controller, int adminId) {
         this.controller = controller;
         this.adminId = adminId;
-    }
+}
 
     public void launch() {
         Scanner scanner = new Scanner(System.in);
@@ -247,7 +247,7 @@ public class adminView {
     private void viewMyProfile() {
         System.out.println("\n=== My Profile ===");
     
-        Map<String, Object> me = controller.getEmployee(controller.getLoggedInAdminId());
+        Map<String, Object> me = controller.getEmployee(adminId);
     
         if (me == null) {
             System.out.println("Error: Could not load your profile.");

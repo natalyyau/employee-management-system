@@ -9,9 +9,11 @@ import controller.adminController;
 
 public class adminView {
     private adminController controller;
+    private int adminId;
 
     public adminView(adminController controller) {
         this.controller = controller;
+        this.adminId = adminId;
     }
 
     public void launch() {
@@ -26,7 +28,8 @@ public class adminView {
             System.out.println("4. Employees Hired in Date Range");
             System.out.println("5. Add New Employee");
             System.out.println("6. Update Salary by Percentage Range");
-            System.out.println("7. Exit");
+            System.out.println("7. View My Profile");
+            System.out.println("8. Exit");
             System.out.print("Choose option: ");
 
             int option = scanner.nextInt();
@@ -105,9 +108,14 @@ public class adminView {
                     break;
 
                 case 7:
+                    viewMyProfile();
+                    break;
+                
+                case 8:
                     running = false;
                     System.out.println("Exiting admin dashboard...");
                     break;
+
 
                 default:
                     System.out.println("Invalid option.");
@@ -236,9 +244,26 @@ public class adminView {
         }
 }
 
-
-        
-
+    private void viewMyProfile() {
+        System.out.println("\n=== My Profile ===");
+    
+        Map<String, Object> me = controller.getEmployee(controller.getLoggedInAdminId());
+    
+        if (me == null) {
+            System.out.println("Error: Could not load your profile.");
+            return;
+        }
+    
+        System.out.println("Employee ID: " + me.get("empid"));
+        System.out.println("First Name: " + me.get("Fname"));
+        System.out.println("Last Name: " + me.get("Lname"));
+        System.out.println("Email: " + me.get("email"));
+        System.out.println("Role: " + me.get("role"));
+        System.out.println("Hire Date: " + me.get("HireDate"));
+        System.out.println("Salary: " + me.get("Salary"));
+        System.out.println("SSN: " + me.get("SSN"));
+    }
+    
     private void printHiredEmployeesTable(List<Map<String, Object>> employees) {
         System.out.println("\n=== Employees Hired in Date Range ===");
         System.out.printf(

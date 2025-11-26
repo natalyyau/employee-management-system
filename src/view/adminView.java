@@ -62,18 +62,39 @@ public class adminView {
 
                 case 4:
                     System.out.print("Enter start date (YYYY-MM-DD): ");
-                    String startDate = scanner.nextLine();
+                    String startDate = scanner.nextLine().trim();
+                
                     System.out.print("Enter end date (YYYY-MM-DD): ");
-                    String endDate = scanner.nextLine();
-
+                    String endDate = scanner.nextLine().trim();
+                
+                    // Validate date format
+                    java.sql.Date start = null;
+                    java.sql.Date end = null;
+                
+                    try {
+                        start = java.sql.Date.valueOf(startDate);
+                        end = java.sql.Date.valueOf(endDate);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("ERROR: Invalid date format. Use YYYY-MM-DD.");
+                        break;
+                    }
+                
+                    // Validate range
+                    if (start.after(end)) {
+                        System.out.println("ERROR: Invalid date range. Start date cannot be after end date.");
+                        break;
+                    }
+                
+                    // Fetch from controller
                     List<Map<String, Object>> hiredEmployees = controller.getEmployeesHiredInRange(startDate, endDate);
-
+                
                     if (hiredEmployees == null || hiredEmployees.isEmpty()) {
                         System.out.println("No employees found hired between " + startDate + " and " + endDate + ".");
                     } else {
                         printHiredEmployeesTable(hiredEmployees);
                     }
                     break;
+                
 
                 case 5:
                     addNewEmployee(scanner);

@@ -132,11 +132,12 @@ public class adminView {
             }
         }
     }
-
     private void editEmployee(Map<String, Object> employee, Scanner scanner) {
         System.out.println("\nEditing Employee: " + employee.get("empid"));
         boolean editing = true;
-
+    
+        Map<String, Object> updated = new HashMap<>(employee);
+    
         while (editing) {
             System.out.println("\nSelect field to edit:");
             System.out.println("1. Fname");
@@ -146,48 +147,76 @@ public class adminView {
             System.out.println("5. Done editing");
             System.out.print("Choose option: ");
             String choice = scanner.nextLine();
-
+    
             switch (choice) {
                 case "1":
-                    System.out.print("New Fname [" + employee.get("Fname") + "]: ");
-                    String fname = scanner.nextLine();
-                    if (!fname.isEmpty()) employee.put("Fname", fname);
+                    System.out.print("New Fname [" + updated.get("Fname") + "]: ");
+                    String fname = scanner.nextLine().trim();
+                    if (fname.isEmpty()) {
+                        System.out.println("ERROR: Blank field not allowed.");
+                    } else updated.put("Fname", fname);
                     break;
-
+    
                 case "2":
-                    System.out.print("New Lname [" + employee.get("Lname") + "]: ");
-                    String lname = scanner.nextLine();
-                    if (!lname.isEmpty()) employee.put("Lname", lname);
+                    System.out.print("New Lname [" + updated.get("Lname") + "]: ");
+                    String lname = scanner.nextLine().trim();
+                    if (lname.isEmpty()) {
+                        System.out.println("ERROR: Blank field not allowed.");
+                    } else updated.put("Lname", lname);
                     break;
-
+    
                 case "3":
-                    System.out.print("New Email [" + employee.get("email") + "]: ");
-                    String email = scanner.nextLine();
-                    if (!email.isEmpty()) employee.put("email", email);
+                    System.out.print("New Email [" + updated.get("email") + "]: ");
+                    String email = scanner.nextLine().trim();
+                    if (email.isEmpty()) {
+                        System.out.println("ERROR: Blank field not allowed.");
+                    } else updated.put("email", email);
                     break;
-
+    
                 case "4":
-                    System.out.print("New Salary [" + employee.get("Salary") + "]: ");
-                    String salaryInput = scanner.nextLine();
-                    if (!salaryInput.isEmpty()) employee.put("Salary", Double.parseDouble(salaryInput));
+                    System.out.print("New Salary [" + updated.get("Salary") + "]: ");
+                    String sal = scanner.nextLine().trim();
+                    if (sal.isEmpty()) {
+                        System.out.println("ERROR: Blank field not allowed.");
+                    } else {
+                        try {
+                            updated.put("Salary", Double.parseDouble(sal));
+                        } catch (NumberFormatException e) {
+                            System.out.println("ERROR: Invalid salary value.");
+                        }
+                    }
                     break;
-
+    
                 case "5":
                     editing = false;
                     break;
-
+    
                 default:
-                    System.out.println("Invalid option. Try again.");
+                    System.out.println("Invalid option.");
             }
         }
-
+    
+        // Final validation BEFORE UPDATE
+        if (updated.get("Fname").toString().isEmpty()
+            || updated.get("Lname").toString().isEmpty()
+            || updated.get("email").toString().isEmpty()
+            || updated.get("Salary") == null) 
+        {
+            System.out.println("\nERROR: One or more required fields are blank. Update cancelled.");
+            return;
+        }
+    
+        // Save changes
         try {
-            controller.updateEmployee(employee);
+            controller.updateEmployee(updated);
             System.out.println("Employee updated successfully!");
         } catch (Exception e) {
             System.out.println("Error updating employee: " + e.getMessage());
         }
-    }
+}
+
+
+        
 
     private void printHiredEmployeesTable(List<Map<String, Object>> employees) {
         System.out.println("\n=== Employees Hired in Date Range ===");

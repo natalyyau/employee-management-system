@@ -259,9 +259,26 @@ public class adminView {
         System.out.println("Last Name: " + me.get("Lname"));
         System.out.println("Email: " + me.get("email"));
         System.out.println("Role: " + me.get("role"));
-        System.out.println("Hire Date: " + me.get("HireDate"));
-        System.out.println("Salary: " + me.get("Salary"));
-        System.out.println("SSN: " + me.get("SSN"));
+        
+        if (me.get("HireDate") != null) {
+            System.out.println("Hire Date: " + me.get("HireDate"));
+        } else {
+            System.out.println("Hire Date: Not set");
+        }
+        
+        if (me.get("Salary") != null) {
+            System.out.println("Salary: $" + String.format("%.2f", me.get("Salary")));
+        } else {
+            System.out.println("Salary: Not set");
+        }
+        
+        if (me.get("SSN") != null) {
+            System.out.println("SSN: " + me.get("SSN"));
+        } else {
+            System.out.println("SSN: Not provided");
+        }
+        
+        System.out.println();
     }
     
     private void printHiredEmployeesTable(List<Map<String, Object>> employees) {
